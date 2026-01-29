@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>lab.soa</groupId>
+    <artifactId>flat-service-wildfly</artifactId>
+    <version>1.0.0</version>
+    <packaging>war</packaging>
+
+    <name>Flat Service WildFly</name>
+    <description>JAX-RS service for flats management deployed on WildFly</description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Versions -->
+        <version.jakarta.jakartaee-api>10.0.0</version.jakarta.jakartaee-api>
+        <version.slf4j>2.0.9</version.slf4j>
+        <version.lombok>1.18.30</version.lombok>
+        <version.jaxb>4.0.0</version.jaxb>
+        <!-- WildFly paths -->
+        <wildfly.home>${project.basedir}/wildfly</wildfly.home>
+        <wildfly.deployments.dir>${wildfly.home}/standalone/deployments</wildfly.deployments.dir>
+    </properties>
+
+    <dependencies>
+        <!-- Jakarta EE Web Profile API -->
+        <dependency>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
+            <version>${version.jakarta.jakartaee-api}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- SLF4J API -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${version.slf4j}</version>
+        </dependency>
+        <!-- JAXB API (для XML сериализации) -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>${version.jaxb}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- JAXB Runtime (необходимо для Java 11+ без полного Jakarta EE) -->
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>4.0.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${version.lombok}</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>ROOT</finalName>
+        <plugins>
+            <!-- Compiler Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${version.lombok}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <!-- WAR Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.4.0</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <webResources>
+                        <!-- Добавляем jboss-web.xml -->
+                        <resource>
+                            <directory>src/main/webapp/WEB-INF</directory>
+                            <targetPath>WEB-INF</targetPath>
+                            <includes>
+                                <include>jboss-web.xml</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+
+            <!-- Copy WAR to WildFly deployments -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-war-to-wildfly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <echo message="Copying WAR to WildFly deployments..." />
+                                <copy file="${project.build.directory}/${project.build.finalName}.war"
+                                      tofile="${wildfly.deployments.dir}/${project.build.finalName}.war"
+                                      overwrite="true" />
+                                <!-- Удаляем старый flat-service.war если существует -->
+                                <delete file="${wildfly.deployments.dir}/flat-service.war" failonerror="false" />
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

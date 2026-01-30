@@ -14,14 +14,19 @@ Wildfly располагаем в корневую директорию прое
 Эта команда упаковывает `/flat-web` в `war` и `/flat-ejb` в `jar`, копирует `war` и `jar` в `wildfly/standalone/deployments`
 
 Запуск wildfly:<br>
-`./wildfly/bin/standalone.sh -c standalone-my.xml`
+```
+./wildfly/bin/standalone.sh -c standalone-node1.xml
+```
+```
+./wildfly/bin/standalone.sh -c standalone-node2.xml
+```
 
 Пример конфигурации `standalone/configuration/standalone-my.xml`
 
 Генерация ключа:
 ```
 keytool -genkeypair -alias wildfly -keyalg RSA -keysize 4096 \
-  -validity 3650 -keystore keystore.p12 \
+  -validity 3650 -keystore wildfly.p12 \
   -storetype PKCS12 -storepass changeit -keypass changeit \
   -dname "CN=localhost, OU=Development, O=Company, L=City, ST=State, C=RU"
 ```
@@ -49,6 +54,27 @@ keytool -genkeypair -alias wildfly -keyalg RSA -keysize 4096 \
             instance-acquisition-timeout-unit="MINUTES"/>
     </bean-instance-pools>
 </pools>
+```
+
+Установка HAProxy:
+```
+make TARGET=linux-glibc USE_OPENSSL=1 USE_ZLIB=1 USE_PCRE=1
+make install PREFIX=$HOME/haproxy
+```
+
+Запуск:
+```
+~/haproxy/sbin/haproxy -f ~/haproxy/etc/haproxy.cfg
+```
+
+Экспортируем сертификат и ключ:
+```
+# 1. Экспорт приватного ключа
+openssl pkcs12 -in wildfly.p12 -nocerts -nodes -out wildfly.key -passin pass:changeit
+# 2. Экспорт сертификата
+openssl pkcs12 -in wildfly.p12 -clcerts -nokeys -out wildfly.crt -passin pass:changeit
+# 3. Объединяем в один PEM для HAProxy
+cat wildfly.key wildfly.crt > wildfly.pem
 ```
 
 ### Ссылки на репозитории лабораторной

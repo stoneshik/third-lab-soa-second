@@ -12,6 +12,19 @@
     <artifactId>flat-web</artifactId>
     <packaging>war</packaging>
     <name>Flat Service Web</name>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Versions -->
+        <version.jakarta.jakartaee-api>10.0.0</version.jakarta.jakartaee-api>
+        <version.slf4j>2.0.9</version.slf4j>
+        <version.lombok>1.18.30</version.lombok>
+        <version.jaxb>4.0.0</version.jaxb>
+        <!-- WildFly paths -->
+        <wildfly.home>../wildfly</wildfly.home>
+        <wildfly.deployments.dir>${wildfly.home}/standalone/deployments</wildfly.deployments.dir>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>jakarta.platform</groupId>

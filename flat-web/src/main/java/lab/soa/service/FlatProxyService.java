@@ -14,9 +14,7 @@ import lab.soa.presentation.dto.responses.ProxyResponseDto;
 
 @ApplicationScoped
 public class FlatProxyService {
-    @EJB(
-        lookup = "java:global/flat-ejb/FlatProxyBean!lab.soa.ejb.FlatProxyRemote"
-    )
+    @EJB(lookup = "java:global/flat-ejb-1.0.0/FlatProxyBean!lab.soa.ejb.FlatProxyRemote")
     private FlatProxyRemote proxyEjb;
 
     public Response proxyFindWithBalcony(

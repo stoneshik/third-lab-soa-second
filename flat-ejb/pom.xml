@@ -22,7 +22,7 @@
         <version.lombok>1.18.30</version.lombok>
         <version.jaxb>4.0.0</version.jaxb>
         <!-- WildFly paths -->
-        <wildfly.home>${project.basedir}/wildfly</wildfly.home>
+        <wildfly.home>../wildfly</wildfly.home>
         <wildfly.deployments.dir>${wildfly.home}/standalone/deployments</wildfly.deployments.dir>
     </properties>
     <dependencies>

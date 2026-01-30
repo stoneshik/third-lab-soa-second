@@ -279,15 +279,29 @@
                         <implementation type="PKCS12"/>
                         <file path="wildfly.p12" relative-to="jboss.server.config.dir"/>
                     </key-store>
+                    <key-store name="trustKS">
+                        <credential-reference clear-text="changeit"/>
+                        <implementation type="PKCS12"/>
+                        <file path="spring-truststore.p12" relative-to="jboss.server.config.dir"/>
+                    </key-store>
                 </key-stores>
                 <key-managers>
                     <key-manager name="applicationKM" key-store="applicationKS">
                         <credential-reference clear-text="changeit"/>
                     </key-manager>
                 </key-managers>
+                <trust-managers>
+                    <trust-manager name="applicationTM" key-store="trustKS"/>
+                </trust-managers>
                 <server-ssl-contexts>
                     <server-ssl-context name="applicationSSC" key-manager="applicationKM"/>
                 </server-ssl-contexts>
+                <client-ssl-contexts>
+                    <client-ssl-context name="applicationCSC" trust-manager="applicationTM"/>
+                </client-ssl-contexts>
+                <client-ssl-contexts>
+                    <client-ssl-context name="proxyClientSSL" trust-manager="applicationTM" key-manager="applicationKM"/>
+                </client-ssl-contexts>
             </tls>
             <policy name="jacc">
                 <jacc-policy/>
@@ -354,7 +368,11 @@
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:jsf:1.1"/>
         <subsystem xmlns="urn:jboss:domain:naming:2.0">
-            <remote-naming/>
+            <bindings>
+                <lookup
+                    name="java:jboss/elytron/client-ssl-context/applicationCSC"
+                    lookup="service:org.wildfly.security.client-ssl-context.applicationCSC"/>
+            </bindings>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:remoting:8.0">
             <endpoint worker="default"/>
@@ -416,10 +434,10 @@
         </interface>
     </interfaces>
     <socket-binding-group name="standard-sockets" default-interface="public" port-offset="${jboss.socket.binding.port-offset:0}">
-        <socket-binding name="http" port="${jboss.http.port:33512}"/>
-        <socket-binding name="https" port="${jboss.https.port:33511}"/>
-        <socket-binding name="management-http" interface="management" port="${jboss.management.http.port:33513}"/>
-        <socket-binding name="txn-recovery-environment" port="33514"/>
-        <socket-binding name="txn-status-manager" port="33515"/>
+        <socket-binding name="http" port="${jboss.http.port:33522}"/>
+        <socket-binding name="https" port="${jboss.https.port:33521}"/>
+        <socket-binding name="management-http" interface="management" port="${jboss.management.http.port:9990}"/>
+        <socket-binding name="txn-recovery-environment" port="33524"/>
+        <socket-binding name="txn-status-manager" port="33525"/>
     </socket-binding-group>
 </server>

@@ -21,13 +21,3 @@ keytool -genkeypair -alias wildfly -keyalg RSA -keysize 4096 \
   -storetype PKCS12 -storepass changeit -keypass changeit \
   -dname "CN=localhost, OU=Development, O=Company, L=City, ST=State, C=RU"
 ```
-
-Экспорт сертификата:
-```
-keytool -exportcert -alias wildfly -keystore wildfly.p12 -storetype PKCS12 -storepass changeit -file wildfly.crt
-```
-
-Добавление сертификата в trustore:
-```
-keytool -importcert -alias wildfly -file wildfly.crt -keystore wildfly-truststore.p12 -storetype PKCS12 -storepass changeit -noprompt
-```

@@ -1,6 +1,12 @@
 package lab.soa.service;
 
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.Enumeration;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,17 +30,29 @@ public class FlatProxyService {
     private String targetBaseUrl;
 
     @PostConstruct
-    public void init() {
+    public void init() throws Exception {
         targetBaseUrl = System.getenv().getOrDefault(
             "TARGET_SERVICE_BASE_URL",
             "https://localhost:33511"
         );
-        try {
-            client = ClientBuilder.newBuilder().build();
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to init HTTPS client", e);
-        }
-        log.info("FlatProxyService initialized, target={}", targetBaseUrl);
+        TrustManager[] trustAllCerts = new TrustManager[]{
+            new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }
+            }
+        };
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, trustAllCerts, new SecureRandom());
+        client = ClientBuilder.newBuilder()
+            .sslContext(sslContext)
+            .hostnameVerifier((hostname, session) -> true)
+            .build();
+        log.info("FlatProxyService initialized target={}", targetBaseUrl);
     }
 
     @PreDestroy
@@ -91,7 +109,7 @@ public class FlatProxyService {
             }
         });
         String targetUrl = uriBuilder.build().toString();
-        log.info("Proxy → {}", targetUrl);
+        log.info("Proxy -> {}", targetUrl);
         WebTarget target = client.target(targetUrl);
         Invocation.Builder builder = target.request(MediaType.APPLICATION_XML);
         copyHeaders(request, builder);

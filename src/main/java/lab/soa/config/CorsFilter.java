@@ -14,8 +14,12 @@ public class CorsFilter implements ContainerResponseFilter {
         ContainerRequestContext requestContext,
         ContainerResponseContext responseContext
     ) throws IOException {
+        String targetBaseUrl = System.getenv().getOrDefault(
+            "TARGET_SERVICE_BASE_URL",
+            "https://localhost:33511"
+        );
         responseContext.getHeaders().add(
-            "Access-Control-Allow-Origin", "https://localhost:33511"
+            "Access-Control-Allow-Origin", targetBaseUrl
         );
         responseContext.getHeaders().add(
             "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH"

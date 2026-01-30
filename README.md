@@ -38,10 +38,6 @@ keytool -genkeypair -alias wildfly -keyalg RSA -keysize 4096 \
     <stateless>
         <bean-instance-pool-ref pool-name="slsb-strict-max-pool"/>
     </stateless>
-    <stateful
-        default-access-timeout="5000"
-        cache-ref="simple"
-        passivation-disabled-cache-ref="simple"/>
     <singleton default-access-timeout="5000"/>
 </session-bean>
 <pools>

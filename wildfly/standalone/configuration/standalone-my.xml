@@ -14,6 +14,7 @@
         <extension module="org.jboss.as.transactions"/>
         <extension module="org.jboss.as.webservices"/>
         <extension module="org.jboss.as.weld"/>
+        <extension module="org.wildfly.extension.bean-validation"/>
         <extension module="org.wildfly.extension.elytron"/>
         <extension module="org.wildfly.extension.io"/>
         <extension module="org.wildfly.extension.request-controller"/>
@@ -84,6 +85,7 @@
                 <pattern-formatter pattern="%K{level}%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%e%n"/>
             </formatter>
         </subsystem>
+        <subsystem xmlns="urn:jboss:domain:bean-validation:1.0"/>
         <subsystem xmlns="urn:jboss:domain:deployment-scanner:2.0">
             <deployment-scanner path="deployments" relative-to="jboss.server.base.dir" scan-interval="5000" runtime-failure-causes-rollback="${jboss.deployment.scanner.rollback.on.failure:false}"/>
         </subsystem>
@@ -122,7 +124,6 @@
                         instance-acquisition-timeout-unit="MINUTES"/>
                 </bean-instance-pools>
             </pools>
-            <async thread-pool-name="default"/>
             <timer-service thread-pool-name="default" default-data-store="default-file-store">
                 <data-stores>
                     <file-data-store name="default-file-store" path="timer-service-data" relative-to="jboss.server.data.dir"/>
@@ -130,7 +131,7 @@
             </timer-service>
             <thread-pools>
                 <thread-pool name="default">
-                    <max-threads count="10"/>
+                    <max-threads count="1"/>
                     <keepalive-time time="60" unit="seconds"/>
                 </thread-pool>
             </thread-pools>
@@ -152,16 +153,17 @@
                 <provider-loader name="openssl" module="org.wildfly.openssl"/>
             </providers>
             <security-domains>
-                <security-domain name="ApplicationDomain" default-realm="ApplicationRealm" permission-mapper="default-permission-mapper">
-                    <realm name="ApplicationRealm" role-decoder="groups-to-roles"/>
-                    <realm name="local"/>
+                <security-domain name="ApplicationDomain"
+                                default-realm="ApplicationRealm">
+                    <realm name="ApplicationRealm"/>
                 </security-domain>
             </security-domains>
             <security-realms>
-                <identity-realm name="local" identity="$local"/>
                 <properties-realm name="ApplicationRealm">
-                    <users-properties path="application-users.properties" relative-to="jboss.server.config.dir" digest-realm-name="ApplicationRealm"/>
-                    <groups-properties path="application-roles.properties" relative-to="jboss.server.config.dir"/>
+                    <users-properties path="application-users.properties"
+                                    relative-to="jboss.server.config.dir"/>
+                    <groups-properties path="application-roles.properties"
+                                    relative-to="jboss.server.config.dir"/>
                 </properties-realm>
             </security-realms>
             <mappers>
@@ -190,11 +192,12 @@
                 </permission-set>
             </permission-sets>
             <http>
-                <http-authentication-factory name="application-http-authentication" security-domain="ApplicationDomain" http-server-mechanism-factory="global">
+                <http-authentication-factory
+                    name="application-http-authentication"
+                    security-domain="ApplicationDomain"
+                    http-server-mechanism-factory="global">
                     <mechanism-configuration>
-                        <mechanism mechanism-name="BASIC">
-                            <mechanism-realm realm-name="ApplicationRealm"/>
-                        </mechanism>
+                        <mechanism mechanism-name="BASIC"/>
                     </mechanism-configuration>
                 </http-authentication-factory>
                 <provider-http-server-mechanism-factory name="global"/>
@@ -246,12 +249,9 @@
                     <client-ssl-context name="applicationCSC" trust-manager="applicationTM"/>
                 </client-ssl-contexts>
             </tls>
-            <policy name="jacc">
-                <jacc-policy/>
-            </policy>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:io:4.0" default-worker="default">
-            <worker name="default" io-threads="1" task-max-threads="2"/>
+            <worker name="default" io-threads="1" task-max-threads="1"/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:jaxrs:4.0"/>
         <subsystem xmlns="urn:jboss:domain:naming:2.0">
@@ -268,13 +268,13 @@
         <subsystem xmlns="urn:jboss:domain:request-controller:1.0"/>
         <subsystem xmlns="urn:jboss:domain:resource-adapters:7.1"/>
         <subsystem xmlns="urn:jboss:domain:transactions:6.0">
-            <core-environment node-identifier="${jboss.tx.node.id:1}">
+            <core-environment node-identifier="soa-node-1">
                 <process-id>
                     <uuid/>
                 </process-id>
             </core-environment>
             <recovery-environment socket-binding="txn-recovery-environment" status-socket-binding="txn-status-manager"/>
-            <coordinator-environment statistics-enabled="${wildfly.transactions.statistics-enabled:${wildfly.statistics-enabled:false}}"/>
+            <coordinator-environment statistics-enabled="false"/>
             <object-store path="tx-object-store" relative-to="jboss.server.data.dir"/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:undertow:community:14.0" default-virtual-host="default-host" default-servlet-container="default" default-server="default-server" statistics-enabled="${wildfly.undertow.statistics-enabled:${wildfly.statistics-enabled:false}}" default-security-domain="other">
@@ -284,15 +284,11 @@
                 <http-listener name="default" socket-binding="http" redirect-socket="https" enable-http2="true"/>
                 <https-listener name="https" socket-binding="https" ssl-context="applicationSSC" enable-http2="true"/>
                 <host name="default-host" alias="localhost">
-                    <location name="/" handler="welcome-content"/>
                     <http-invoker http-authentication-factory="application-http-authentication"/>
                 </host>
             </server>
             <servlet-container name="default">
             </servlet-container>
-            <handlers>
-                <file name="welcome-content" path="${jboss.home.dir}/welcome-content"/>
-            </handlers>
             <application-security-domains>
                 <application-security-domain name="other" security-domain="ApplicationDomain"/>
             </application-security-domains>
@@ -320,7 +316,7 @@
     <socket-binding-group name="standard-sockets" default-interface="public" port-offset="${jboss.socket.binding.port-offset:0}">
         <socket-binding name="http" port="${jboss.http.port:33522}"/>
         <socket-binding name="https" port="${jboss.https.port:33521}"/>
-        <socket-binding name="txn-recovery-environment" port="33523"/>
-        <socket-binding name="txn-status-manager" port="33524"/>
+        <socket-binding name="txn-recovery-environment" port="0"/>
+        <socket-binding name="txn-status-manager" port="0"/>
     </socket-binding-group>
 </server>

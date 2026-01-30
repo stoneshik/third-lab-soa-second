@@ -1,5 +1,6 @@
 package lab.soa.presentation.dto.responses;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @XmlRootElement(name = "error")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ErrorMessageResponseDto {
+public class ErrorMessageResponseDto implements Serializable {
+    private static final long serialVersionUID = 1L;
     @XmlElement(name = "message")
     private String message;
 

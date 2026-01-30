@@ -26,11 +26,13 @@
         <wildfly.deployments.dir>${wildfly.home}/standalone/deployments</wildfly.deployments.dir>
     </properties>
     <dependencies>
+        <!-- Jakarta EE Web Profile API -->
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

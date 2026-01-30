@@ -1,5 +1,7 @@
 package lab.soa.presentation.dto.responses;
 
+import java.io.Serializable;
+
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -15,7 +17,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @XmlRootElement(name = "response")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ProxyResponseDto {
+public class ProxyResponseDto implements Serializable {
+    private static final long serialVersionUID = 1L;
     @XmlElement(name = "status")
     private int status;
 

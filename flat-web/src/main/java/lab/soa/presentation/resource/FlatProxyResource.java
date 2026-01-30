@@ -1,6 +1,5 @@
 package lab.soa.presentation.resource;
 
-import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.GET;
@@ -13,7 +12,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lab.soa.service.FlatProxyService;
 
-@Stateless
 @Path("/flats/agency")
 @Produces(MediaType.APPLICATION_XML)
 public class FlatProxyResource {

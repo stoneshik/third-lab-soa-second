@@ -1,3 +1,5 @@
 /target
 /wildfly
 !/wildfly/standalone/configuration/standalone-my.xml
+**/target
+**.war

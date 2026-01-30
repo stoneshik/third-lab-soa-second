@@ -1,4 +1,4 @@
-package lab.soa.resource;
+package lab.soa.presentation.resource;
 
 import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
@@ -52,4 +52,3 @@ public class FlatProxyResource {
         );
     }
 }
-

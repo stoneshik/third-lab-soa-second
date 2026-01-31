@@ -35,7 +35,7 @@ public class RequestManager {
         try {
             targetBaseUrl = System.getenv().getOrDefault(
                 "TARGET_SERVICE_BASE_URL",
-                "https://localhost:33511"
+                "https://localhost:33510"
             );
             TrustManager[] trustAllCerts = new TrustManager[]{
                 new X509TrustManager() {

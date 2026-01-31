@@ -16,7 +16,7 @@ public class CorsFilter implements ContainerResponseFilter {
     ) throws IOException {
         String targetBaseUrl = System.getenv().getOrDefault(
             "TARGET_SERVICE_BASE_URL",
-            "https://localhost:33511"
+            "https://localhost:33510"
         );
         responseContext.getHeaders().add(
             "Access-Control-Allow-Origin", targetBaseUrl

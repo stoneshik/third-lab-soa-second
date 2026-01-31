@@ -10,7 +10,11 @@ Wildfly располагаем в корневую директорию прое
 
 `/flat-web` - основное приложение
 
-Для сборки: `mvn clean package`<br>
+Для сборки:
+```
+mvn clean package
+```
+
 Эта команда упаковывает `/flat-web` в `war` и `/flat-ejb` в `jar`, копирует `war` и `jar` в `wildfly/standalone/deployments`
 
 Запуск wildfly:<br>
@@ -20,8 +24,6 @@ Wildfly располагаем в корневую директорию прое
 ```
 ./wildfly/bin/standalone.sh -c standalone-node2.xml
 ```
-
-Пример конфигурации `standalone/configuration/standalone-my.xml`
 
 Генерация ключа:
 ```

@@ -33,6 +33,16 @@ keytool -genkeypair -alias wildfly -keyalg RSA -keysize 4096 \
   -dname "CN=localhost, OU=Development, O=Company, L=City, ST=State, C=RU"
 ```
 
+Экспортируем сертификат и ключ для HAProxy:
+```
+# 1. Экспорт приватного ключа
+openssl pkcs12 -in wildfly.p12 -nocerts -nodes -out wildfly.key -passin pass:changeit
+# 2. Экспорт сертификата
+openssl pkcs12 -in wildfly.p12 -clcerts -nokeys -out wildfly.crt -passin pass:changeit
+# 3. Объединяем в один PEM для HAProxy
+cat wildfly.key wildfly.crt > wildfly.pem
+```
+
 Параметры пула EJB:
 - `strict-max-pool`: Сервер управляет максимумом экземпляров
 - `derive-size="from-worker-pools"`: Размер пула рассчитывается автоматически на основе `worker-pool`
@@ -56,27 +66,6 @@ keytool -genkeypair -alias wildfly -keyalg RSA -keysize 4096 \
             instance-acquisition-timeout-unit="MINUTES"/>
     </bean-instance-pools>
 </pools>
-```
-
-Установка HAProxy:
-```
-make TARGET=linux-glibc USE_OPENSSL=1 USE_ZLIB=1 USE_PCRE=1
-make install PREFIX=$HOME/haproxy
-```
-
-Запуск:
-```
-~/haproxy/sbin/haproxy -f ~/haproxy/etc/haproxy.cfg
-```
-
-Экспортируем сертификат и ключ:
-```
-# 1. Экспорт приватного ключа
-openssl pkcs12 -in wildfly.p12 -nocerts -nodes -out wildfly.key -passin pass:changeit
-# 2. Экспорт сертификата
-openssl pkcs12 -in wildfly.p12 -clcerts -nokeys -out wildfly.crt -passin pass:changeit
-# 3. Объединяем в один PEM для HAProxy
-cat wildfly.key wildfly.crt > wildfly.pem
 ```
 
 ### Ссылки на репозитории лабораторной

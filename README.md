@@ -68,6 +68,8 @@ cat wildfly.key wildfly.crt > wildfly.pem
 </pools>
 ```
 
+---
+
 ### Ссылки на репозитории лабораторной
 
 1. Ссылка на основной вызываемый сервис реализованный на Spring Boot - https://github.com/stoneshik/third-lab-soa
